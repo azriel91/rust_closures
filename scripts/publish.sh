@@ -15,6 +15,7 @@ fi
 
 echo "Updating gh-pages branch"
 (
+  mdbook build &&
   cd book &&
   git init &&
   git checkout --orphan gh-pages
