@@ -1,0 +1,10 @@
+[book]
+authors = ["Azriel Hoh"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Rust Closures"
+
+[output.html.playpen]
+editable = true
+line-numbers = true
