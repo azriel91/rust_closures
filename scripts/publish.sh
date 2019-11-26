@@ -13,26 +13,15 @@ then
   exit 1;
 fi
 
-echo "Deleting old publication"
-rm -rf book
-mkdir book
-git worktree prune
-rm -rf .git/worktrees/book/
-
-echo "Checking out gh-pages branch into book"
-git worktree add -B gh-pages book
-
-echo "Removing existing files"
-rm -rf book/*
-
-echo "Generating site"
-mdbook build
-
 echo "Updating gh-pages branch"
 (
   cd book &&
+  git init &&
+  git checkout --orphan gh-pages
   git add --all &&
-  git commit -m "Publishing to gh-pages"
+  git commit -m "Generated website"
 
   git push git@github.com:azriel91/rust_closures.git gh-pages -f
 )
+
+exit 0
