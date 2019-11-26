@@ -23,6 +23,7 @@ script:
   - mdbook build && mdbook test
 
 deploy:
+  skip_cleanup: true
   provider: script
   script: bash scripts/publish.sh
   on:
