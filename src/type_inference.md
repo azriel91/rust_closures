@@ -15,7 +15,7 @@ If the usage is ambiguous, you may explicitly specify the parameter types and re
 
 Since each closure is typed, the following will fail to compile, as Rust needs to choose whether `x`'s type is `u32` or `i32`:
 
-```rust,ignore
+```rust,compile_fail
 let add_one = |x| x + 1;
 add_one(1u32);
 add_one(1i32);
