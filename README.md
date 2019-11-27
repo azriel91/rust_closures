@@ -2,7 +2,9 @@
 
 Overview of closures in Rust.
 
-## Building
+Online at: https://azriel.im/rust_closures/
+
+## Building Locally
 
 1. Ensure `mdbook` is installed:
 
@@ -18,4 +20,4 @@ Overview of closures in Rust.
     mdbook serve
     ```
 
-3. Open <http://localhost:3000/foreword.html>.
+3. Open <http://localhost:3000/>.
