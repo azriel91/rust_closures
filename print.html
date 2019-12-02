@@ -1,0 +1,604 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Rust Closures</title>
+        
+        <meta name="robots" content="noindex" />
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div id="sidebar-scrollbox" class="sidebar-scrollbox">
+                <ol class="chapter"><li class="expanded affix "><a href="foreword.html">Foreword</a></li><li class="expanded "><a href="what_are_closures.html"><strong aria-hidden="true">1.</strong> What Are Closures</a></li><li><ol class="section"><li class="expanded "><a href="what_are_closures/stored.html"><strong aria-hidden="true">1.1.</strong> 📦 Stored</a></li><li class="expanded "><a href="what_are_closures/anonymous.html"><strong aria-hidden="true">1.2.</strong> 🦝 Anonymous</a></li><li class="expanded "><a href="what_are_closures/captures_environment.html"><strong aria-hidden="true">1.3.</strong> 🕸️ Captures Environment</a></li></ol></li><li class="expanded "><a href="why_closures.html"><strong aria-hidden="true">2.</strong> Why Closures</a></li><li><ol class="section"><li class="expanded "><a href="why_closures/development_ergonomics.html"><strong aria-hidden="true">2.1.</strong> 💺 Development Ergonomics</a></li><li class="expanded "><a href="why_closures/lazy_evaluation.html"><strong aria-hidden="true">2.2.</strong> 🕒 Lazy evaluation</a></li></ol></li><li class="expanded "><a href="type_inference.html"><strong aria-hidden="true">3.</strong> Type Inference</a></li><li class="expanded "><a href="closure_environment.html"><strong aria-hidden="true">4.</strong> Closure Environment</a></li><li class="expanded "><a href="fn_traits.html"><strong aria-hidden="true">5.</strong> Fn Traits</a></li><li class="expanded "><a href="why_not_closures.html"><strong aria-hidden="true">6.</strong> Why Not Closures</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">Rust Closures</h1>
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#foreword" id="foreword">Foreword</a></h1>
+<p>Written for the Rust Auckland meetup 2019-12-02.</p>
+<ul>
+<li>Rust Auckland meetup: <a href="https://www.meetup.com/rust-akl/">https://www.meetup.com/rust-akl/</a></li>
+<li>Slack: <a href="https://rust-akl.slack.com/messages/CCC7KUXMY/">https://rust-akl.slack.com/messages/CCC7KUXMY/</a></li>
+<li>Repository: <a href="https://github.com/azriel91/rust_closures">https://github.com/azriel91/rust_closures</a></li>
+</ul>
+<p>Feel free to use and improve on these.</p>
+<h1><a class="header" href="#what-are-closures" id="what-are-closures">What Are Closures</a></h1>
+<p><strong><span style="font-size: 0.7em;">(azriel's)</span> Definition:</strong> A stored anonymous function, that captures its scoped environment.</p>
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>let closure_0 = || println!(&quot;hello&quot;);
+let closure_1 = || println!(&quot;world&quot;);
+
+closure_0();
+<span class="boring">}
+</span></code></pre></pre>
+<h1><a class="header" href="#-stored" id="-stored">📦 Stored</a></h1>
+<p>Since a closure can be stored, it can be passed around:</p>
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>struct JoblessWorker {
+    tasks: Vec&lt;fn()&gt;,
+}
+
+let task_0 = || println!(&quot;create rust&quot;);
+let task_1 = || println!(&quot;create talk&quot;);
+let task_2 = || println!(&quot;talk create rust&quot;);
+
+let azriel = JoblessWorker {
+    tasks: vec![
+        task_0,
+        task_1,
+        task_2,
+    ],
+};
+
+azriel.tasks.into_iter().for_each(|f| f());
+<span class="boring">}
+</span></code></pre></pre>
+<h1><a class="header" href="#-anonymous" id="-anonymous">🦝 Anonymous</a></h1>
+<p>A closure is a type that cannot be named.</p>
+<pre><pre class="playpen"><code class="language-rust">use std::any::Any;
+
+struct A;
+fn hello() { println!(&quot;hello&quot;); }
+
+fn main() {
+    let a_0: A = A;
+    let a_1: A = A;
+    let f_0: fn() = hello;
+    let f_1: fn() = hello;
+    let c_0 = || {};
+    let c_1 = || {};
+
+    println!(&quot;{}&quot;, std::any::type_name::&lt;A&gt;());
+    println!(&quot;{}&quot;, std::any::type_name::&lt;fn()&gt;());
+
+    println!(&quot;&quot;);
+
+    println!(&quot;a_0: {:?}&quot;, a_0.type_id());
+    println!(&quot;a_1: {:?}&quot;, a_1.type_id());
+    println!(&quot;f_0: {:?}&quot;, f_0.type_id());
+    println!(&quot;f_1: {:?}&quot;, f_1.type_id());
+    println!(&quot;c_0: {:?}&quot;, c_0.type_id());
+    println!(&quot;c_1: {:?}&quot;, c_1.type_id());
+}
+</code></pre></pre>
+<h1><a class="header" href="#-captures-environment" id="-captures-environment">🕸️ Captures Environment</a></h1>
+<pre><pre class="playpen"><code class="language-rust should_panic">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>let nine = 9;
+let closure = |x| x * nine; // nine is captured
+
+println!(&quot;{:?}&quot;, closure(1234567890))
+<span class="boring">}
+</span></code></pre></pre>
+<h1><a class="header" href="#why-closures" id="why-closures">Why Closures</a></h1>
+<ul>
+<li>💺 Development ergonomics</li>
+<li>🕒 Lazy evaluation</li>
+</ul>
+<h1><a class="header" href="#-development-ergonomics" id="-development-ergonomics">💺 Development Ergonomics</a></h1>
+<blockquote>
+<p><em>&quot;Tell me what I need to know, and nothing else.&quot;</em></p>
+</blockquote>
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>let mut numbers = vec![0, 1, 2, 3, 4];
+numbers.iter_mut().for_each(|n| *n &lt;&lt;= 1);
+
+println!(&quot;{:?}&quot;, numbers);
+<span class="boring">}
+</span></code></pre></pre>
+<p>Closure:</p>
+<pre><code class="language-rust ignore">|n| *n &lt;&lt;= 1
+</code></pre>
+<p>If we did not have closures:</p>
+<pre><pre class="playpen"><code class="language-rust">trait Mutation {
+    type Item;
+    fn mutate(&amp;self, i: &amp;mut Self::Item);
+}
+
+struct Doubler;
+impl Mutation for Doubler {
+    type Item = i32;
+    fn mutate(&amp;self, i: &amp;mut Self::Item) {
+        *i &lt;&lt;= 1;
+    }
+}
+
+fn do_work(numbers: &amp;mut [i32], mutation: &amp;dyn Mutation&lt;Item = i32&gt;) {
+    for n in numbers {
+        mutation.mutate(n);
+    }
+}
+
+fn main() {
+    let mut numbers = vec![0, 1, 2, 3, 4];
+    let doubler = Doubler;
+
+    do_work(&amp;mut numbers, &amp;doubler);
+
+    println!(&quot;{:?}&quot;, numbers);
+}
+</code></pre></pre>
+<h1><a class="header" href="#-lazy-evaluation" id="-lazy-evaluation">🕒 Lazy evaluation</a></h1>
+<p>Instead of applying an operation to every item in a collection, using a closure allows one to:</p>
+<ol>
+<li>Store the logic.</li>
+<li>Apply the logic when the value is requested.</li>
+</ol>
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span><span class="boring">use std::{
+</span><span class="boring">    thread,
+</span><span class="boring">    time::{Duration, Instant},
+</span><span class="boring">};
+</span><span class="boring">
+</span>let start = Instant::now();
+
+let numbers = vec![1, 2, 3];
+let mut numbers_double_iter = numbers.iter().map(|n| {
+    // Expensive calculation.
+    thread::sleep(Duration::from_millis(500));
+
+    *n &lt;&lt; 1
+});
+
+// Retrieve one value from the iterator
+let n = numbers_double_iter.next().unwrap();
+println!(&quot;n: {}&quot;, n);
+
+let duration = start.elapsed().as_secs_f32();
+
+println!(&quot;Duration: {:.2} s&quot;, duration);
+<span class="boring">}
+</span></code></pre></pre>
+<h1><a class="header" href="#type-inference" id="type-inference">Type Inference</a></h1>
+<p>Rust can infer the type of each closure parameters and its return type, provided its usage is unambiguous.</p>
+<pre><code class="language-rust ignore">fn  add_one_v1   (x: u32) -&gt; u32 { x + 1 }
+let add_one_v2 = |x: u32| -&gt; u32 { x + 1 };
+let add_one_v3 = |x|             { x + 1 };
+let add_one_v4 = |x|               x + 1  ;
+</code></pre>
+<p>If the usage is ambiguous, you may explicitly specify the parameter types and return type that the closure must adhere to.</p>
+<h2><a class="header" href="#shared-syntax-does-not-compile" id="shared-syntax-does-not-compile">Shared Syntax Does Not Compile</a></h2>
+<p>Since each closure is typed, the following will fail to compile, as Rust needs to choose whether <code>x</code>'s type is <code>u32</code> or <code>i32</code>:</p>
+<pre><pre class="playpen"><code class="language-rust compile_fail">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>let add_one = |x| x + 1;
+add_one(1u32);
+add_one(1i32);
+
+println!(&quot;🦀 Ok!&quot;)
+<span class="boring">}
+</span></code></pre></pre>
+<p><span style="font-size: 0.7em; font-weight: bold;">Snippet from <a href="https://doc.rust-lang.org/book/ch13-01-closures.html#closure-type-inference-and-annotation">The Rust Book - Chapter 13.1 Closures</a></span></p>
+<h1><a class="header" href="#closure-environment" id="closure-environment">Closure Environment</a></h1>
+<h2><a class="header" href="#borrow-or-move" id="borrow-or-move">Borrow or Move</a></h2>
+<p>Rust determines whether a variable is borrowed or moved from the closure environment when capturing the variables.</p>
+<ul>
+<li>
+<p>Inferred borrow:</p>
+<pre><pre class="playpen"><code class="language-rust">#[derive(Clone, Debug)]
+struct A {
+    value: i32,
+}
+
+fn borrow(_a: &amp;A) { println!(&quot;borrow&quot;); }
+fn consume(_a: A) { println!(&quot;consume&quot;); }
+
+fn main() {
+    let a = A { value: 0 };
+    let closure = || {
+        // `a` still refers to `A` instead of `&amp;A`.
+        // So we have to add `&amp;` in front of it.
+
+    //  borrow(a);
+    //         ^
+    //         |
+    //         expected &amp;A, found struct `A`
+    //         help: consider borrowing here: `&amp;a`
+
+        borrow(&amp;a);
+    };
+    closure();
+
+    let closure_move = || consume(a);
+    closure_move();
+}
+</code></pre></pre>
+</li>
+<li>
+<p>Inferred <code>move</code>:</p>
+<pre><pre class="playpen"><code class="language-rust">#[derive(Clone, Debug)]
+struct A {
+    value: i32,
+}
+
+fn borrow(_a: &amp;A) { println!(&quot;borrow&quot;); }
+fn consume(_a: A) { println!(&quot;consume&quot;); }
+
+fn main() {
+    let a = A { value: 0 };
+    let closure = || {
+    //            -- value moved into closure here
+        borrow(&amp;a);
+        consume(a);
+    };
+    closure();
+
+    // let closure_move = || consume(a);
+    //                    ^^         - use occurs due to use in closure
+    //                    |
+    //                    value used here after move
+    // closure_move();
+}
+</code></pre></pre>
+</li>
+<li>
+<p>Explicit <code>move</code>:</p>
+<p>You can use the <code>move</code> keyword to indicate the variable must be moved instead of borrowed.</p>
+<pre><pre class="playpen"><code class="language-rust">#![allow(dead_code)]
+
+#[derive(Clone, Debug)]
+struct A {
+    value: i32,
+}
+
+fn borrow(_a: &amp;A) {}
+fn consume(_a: A) {}
+
+fn main() {
+    let a = A { value: 0 };
+
+    let closure_move = move || borrow(&amp;a);
+    //                 -------         - variable moved due to use in closure
+    //                 |
+    //                 value moved into closure here
+    closure_move();
+
+    // let closure_move = move || consume(a);
+    //                    ^^^^^^^         - use occurs due to use in closure
+    //                    |
+    //                    value used here after move
+    // closure_move();
+}
+</code></pre></pre>
+</li>
+</ul>
+<h2><a class="header" href="#borrow-lifetime" id="borrow-lifetime">Borrow Lifetime</a></h2>
+<p>The usual borrowing rules apply -- note that the borrow lasts for the lifetime of the closure:</p>
+<pre><pre class="playpen"><code class="language-rust">#[derive(Debug)]
+struct A {
+    value: i32,
+}
+
+fn main() {
+    let mut a = A { value: 0 };
+    let mut closure = || a.value = 123;
+    //                -- - borrow occurs due to use in closure
+    //                |
+    //                borrow of `a.value` occurs here
+
+    // a.value = 456; // error[E0506]: cannot assign to `a.value` because it is borrowed
+
+    closure();
+//  ------- borrow later used here
+}
+</code></pre></pre>
+<h1><a class="header" href="#fn-traits" id="fn-traits">Fn Traits</a></h1>
+<p>There are three traits that Rust automatically implements for closures <em>when possible</em>. In <em>increasing superset</em> order:</p>
+<ul>
+<li><a href="https://doc.rust-lang.org/std/ops/trait.FnOnce.html"><code>FnOnce</code></a>: Consumes <code>self</code>. The closure is run once, and may consume variables.</li>
+<li><a href="https://doc.rust-lang.org/std/ops/trait.FnMut.html"><code>FnMut</code></a>: Uses <code>&amp;mut self</code>.The closure may be executed multiple times, and may borrow variables mutably.</li>
+<li><a href="https://doc.rust-lang.org/std/ops/trait.Fn.html"><code>Fn</code></a>: Uses <code>&amp;self</code>. The closure may be executed multiple times, and only borrow variables immutably.</li>
+</ul>
+<pre><pre class="playpen"><code class="language-rust">struct A { value: i32 }
+
+fn call_fn_once&lt;F&gt;(f: F)      where F: FnOnce() { f(); }
+fn call_fn_mut &lt;F&gt;(f: &amp;mut F) where F: FnMut()  { f(); }
+fn call_fn     &lt;F&gt;(f: &amp;F)     where F: Fn()     { f(); }
+
+fn main() {
+    let a = A { value: 0 };
+    let closure_fn_once = || {
+        println!(&quot;closure_fn_once&quot;);
+        drop(a);
+    };
+//  closure_fn_once();
+//  --------------- value moved here
+//  closure_fn_once();
+//  ^^^^^^^^^^^^^^^ value used here after move
+
+    let mut a = A { value: 0 };
+    let mut closure_fn_mut = || {
+        println!(&quot;closure_fn_mut. a.value: `{}`&quot;, a.value);
+        a.value += 1;
+    };
+    // closure_fn_mut();
+    // closure_fn_mut();
+    // closure_fn_mut();
+
+    let a = A { value: 0 };
+    let mut closure_fn = || {
+        println!(&quot;closure_fn. a.value: `{}`&quot;, a.value);
+    };
+    // closure_fn();
+    // closure_fn();
+    // closure_fn();
+
+    call_fn(&amp;closure_fn);
+
+    call_fn_mut(&amp;mut closure_fn_mut);
+    call_fn_mut(&amp;mut closure_fn);
+
+    call_fn_once(closure_fn_once);
+    call_fn_once(closure_fn_mut);
+    call_fn_once(closure_fn);
+}
+</code></pre></pre>
+<h1><a class="header" href="#why-not-closures" id="why-not-closures">Why Not Closures</a></h1>
+<ul>
+<li>Closures don't hold much contextual information (for humans).</li>
+<li>Similar to stringly-typed instead of strongly typed.</li>
+</ul>
+<p>Closure:</p>
+<pre><code class="language-rust ignore">// Trait:
+// Fn(&amp;Block, &amp;Block) -&gt; &amp;Block;
+
+// Implementation
+let cipher_chain: Box&lt;dyn Fn(&amp;Block, &amp;Block) -&gt; &amp;Block&gt; =
+    Box::new(|block_current, block_previous| -&gt; Block { /* .. */ });
+</code></pre>
+<p>Trait:</p>
+<pre><pre class="playpen"><code class="language-rust">
+<span class="boring">#![allow(unused_variables)]
+</span><span class="boring">fn main() {
+</span>/// Chain of encrypted block data.
+pub trait CipherChain {
+    /// The type of the block.
+    type Block;
+
+    /// Returns encrypted block data.
+    ///
+    /// # Parameters
+    ///
+    /// * `block_current`: Block to encrypt.
+    /// * `block_previous`: Previous encrypted block.
+    fn compute(block_current: &amp;Self::Block, block_previous: &amp;Self::Block) -&gt; Self::Block;
+}
+<span class="boring">}
+</span></code></pre></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playpen_line_numbers = true;
+        </script>
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+        <script src="ace.js" type="text/javascript" charset="utf-8"></script>
+        <script src="editor.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mode-rust.js" type="text/javascript" charset="utf-8"></script>
+        <script src="theme-dawn.js" type="text/javascript" charset="utf-8"></script>
+        <script src="theme-tomorrow_night.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+        
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+        
+        
+
+    </body>
+</html>
