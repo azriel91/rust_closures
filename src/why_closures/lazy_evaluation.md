@@ -27,5 +27,5 @@ println!("n: {}", n);
 
 let duration = start.elapsed().as_secs_f32();
 
-println!("Duration: {:.2} ms", duration);
+println!("Duration: {:.2} s", duration);
 ```
